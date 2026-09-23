@@ -1,0 +1,16 @@
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
+.env
+.env.*
+node_modules/
+__pycache__/
+*.pyc
+# Keep individual-level research records out of this repository.
+*.csv
+*.xlsx
+*.xls
+*.joblib
+*.pkl
