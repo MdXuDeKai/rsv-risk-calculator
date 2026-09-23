@@ -1,14 +1,14 @@
-.DS_Store
-Thumbs.db
-*.log
-.idea/
-.vscode/
+__pycache__/
+*.py[cod]
+.venv/
 .env
 .env.*
-node_modules/
-__pycache__/
-*.pyc
-# Keep individual-level research records out of this repository.
+.streamlit/secrets.toml
+web/.streamlit/secrets.toml
+*.log
+.DS_Store
+Thumbs.db
+# Individual-level research files are not distributed.
 *.csv
 *.xlsx
 *.xls

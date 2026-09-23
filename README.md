@@ -1,31 +1,83 @@
-# RSV Risk Calculator
+# RSV Risk Prediction
 
-A browser-based calculator project for respiratory syncytial virus (RSV) research and educational demonstration.
+Research software accompanying a study of admission-based prediction of advanced respiratory support in children hospitalised with respiratory syncytial virus (RSV).
 
-## Project status
+## Research overview
 
-The browser calculator and its scoring code are available in this repository. Calculations run locally in the browser.
+The study examines whether routinely recorded admission variables can estimate the probability of subsequent advanced respiratory support and whether prediction performance is maintained across admission periods. The outcome concerns respiratory support during hospitalisation, rather than the diagnosis of RSV infection.
+
+This repository provides the inference implementation of the study's five-predictor, L2-penalised logistic regression model and an interactive Streamlit calculator. The fitted parameters are fixed during inference; the application does not train or update the model from submitted inputs.
+
+## Model
+
+The model uses the following admission predictors:
+
+| Predictor | Input |
+| --- | --- |
+| Age | Months |
+| Respiratory rate | Breaths per minute |
+| Peripheral oxygen saturation | SpO₂ (%) |
+| Dyspnoea or breathing difficulty | Absent / present |
+| Wheezing | Absent / present |
+
+Preprocessing applies the development-set median imputation values and RobustScaler centring and scaling parameters. The transformed inputs are combined with the regression coefficients and intercept, then converted to a probability through the logistic function. The inference parameters are stored in `web/model.json`; prediction logic is implemented in `web/model.py` using the Python standard library.
+
+The intended research population is hospitalised RSV-positive children aged 24 months or younger. The application is a research demonstration, not a validated clinical decision-support system. It should not determine diagnosis, treatment or discharge decisions. Further validation is needed before use in other settings.
+
+## Repository structure
+
+```text
+.
+├── README.md
+├── LICENSE
+├── web/                  # Files required to deploy the Streamlit app
+│   ├── app.py            # Application entrypoint
+│   ├── model.py          # Preprocessing and probability calculation
+│   ├── model.json        # Fixed inference parameters and illustrative profiles
+│   └── requirements.txt  # Application dependency
+└── tests/
+    ├── test_model.py     # Formula, input validation and example checks
+    └── test_app.py       # Streamlit interaction checks
+```
 
 ## Run locally
 
-Download the repository and open `index.html` in a browser. For a local web server, run `python -m http.server 8080` in the repository directory and visit `http://localhost:8080`.
+Use Python 3.12. From the repository root:
 
-The interface supports Chinese and English. Example inputs are illustrative profiles, not patient records.
+```bash
+python -m pip install -r web/requirements.txt
+python -m streamlit run web/app.py
+```
 
-## Verify the implementation
+Open the local address printed by Streamlit. The interface supports English and Chinese. The example profiles contain illustrative input combinations, not individual patient records.
 
-Run `python scripts/verify_formula.py` with Python 3 and Node.js 18 or later installed. After editing `data/model.json`, run `python scripts/build_model.py` to regenerate the browser configuration.
+## Deploy with Streamlit Community Cloud
 
-## Intended use
+Select this repository and use:
 
-For research and educational use only. The calculator is not a validated clinical decision-support system and should not be used to make diagnosis, treatment, or discharge decisions.
+| Setting | Value |
+| --- | --- |
+| Repository | `MdXuDeKai/rsv-risk-calculator` |
+| Branch | `main` |
+| Main file path | `web/app.py` |
+| Python version | `3.12` |
 
-## Privacy
+The dependency file is located beside the entrypoint at `web/requirements.txt`. No database, API key or training dataset is required. See the [Streamlit deployment documentation](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app).
 
-This repository does not include patient-level data. Please do not submit personal identifiers, medical records, or confidential research materials in public issues or pull requests.
+## Verification
 
-## 中文说明
+```bash
+python -m unittest discover -s tests -v
+```
 
-这是一个用于 RSV 相关研究展示与学习的网页计算器项目。仓库已包含网页计算器及其评分代码，计算在浏览器内完成。
+The tests cover fixed example probabilities, individual predictor contributions, missing-value handling, invalid inputs and interface behaviour. These checks assess implementation consistency; they are not a substitute for clinical model validation.
 
-本项目不用于临床诊断、治疗或出院决策。请勿在公开反馈中提交个人身份信息、病历或未公开研究资料。
+## Data and privacy
+
+Patient-level data, institutional identifiers and unpublished study results are not distributed in this repository. Please do not include identifiable records in issues or pull requests.
+
+Streamlit processes inputs on the server that hosts the application. This application has no patient identifier fields and does not write submitted values to files or databases. Use illustrative inputs on a public deployment.
+
+## License
+
+The software is distributed under the [MIT License](LICENSE).
